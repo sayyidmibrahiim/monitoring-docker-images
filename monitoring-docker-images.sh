@@ -22,6 +22,7 @@ else
         done
 fi
 
+
 #Array for checking every images
 declare -a arr=(
 `awk '1' "$path/container.properties"`
@@ -30,9 +31,17 @@ declare -a arr=(
 #Looping for checking every images on container.properties file
 for container in "${arr[@]}"
 do
+logs_state_name=$(grep "$container" "$path/container.properties" | tr / -)
+if [[ $(docker ps -a | grep -i $container | wc -l) -eq 0 ]]; then
+        echo "$DATE Image = $container is down" >> $path/logs/$logs_state_name.out
+                if [ $(ls $path/state/ | grep $logs_state_name-down | wc -l) -le 0 ]; then
+                        rm -f $path/state/$logs_state_name-*
+                        curl -s -F chat_id="$chat_id" -F text="$host - $ip - Image = $container is down at $DATE" https://api.telegram.org/bot$token/sendMessage > /dev/null 2>&1
+                        touch $path/state/$logs_state_name-down
+                fi
+fi
 #Array for chechking every status#Array for chechking every status
 status=(running restarting removing paused exited dead)
-logs_state_name=$(grep "$container" "$path/container.properties" | tr / -)
 for status in "${status[@]}"
 do
 if [[ $(docker ps -a --filter status=$status | grep -i $container | wc -l) -eq 1 ]]; then
@@ -41,13 +50,6 @@ if [[ $(docker ps -a --filter status=$status | grep -i $container | wc -l) -eq 1
                         rm -f $path/state/$logs_state_name-*
                         curl -s -F chat_id="$chat_id" -F text="$host - $ip - Image = $container is $status at $DATE" https://api.telegram.org/bot$token/sendMessage > /dev/null 2>&1
                         touch $path/state/$logs_state_name-$status
-                fi
-elif [[ $(docker ps -a --filter status=running | grep -i $container | wc -l) -eq 0 ]]; then
-        echo "$DATE Image = $container is down" >> $path/logs/$logs_state_name.out
-                if [ $(ls $path/state/ | grep $logs_state_name-down | wc -l) -le 0 ]; then
-                        rm -f $path/state/$logs_state_name-*
-                        curl -s -F chat_id="$chat_id" -F text="$host - $ip - Image = $container is down at $DATE" https://api.telegram.org/bot$token/sendMessage > /dev/null 2>&1
-                        touch $path/state/$logs_state_name-down
                 fi
 fi
 done
