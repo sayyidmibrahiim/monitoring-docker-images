@@ -1,4 +1,16 @@
+<div align="center">
+
 # Docker Container State Monitor
+
+**State-change alerts for Docker workloads, using Bash and Telegram.**
+
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=flat-square) ![Docker](https://img.shields.io/badge/Docker-2563eb?style=flat-square) ![Status-Historical](https://img.shields.io/badge/Status-Historical-e18536?style=flat-square)
+
+[Problem](#what-problem-it-solves) · [Features](#what-the-script-actually-does) · [Setup](#requirements) · [Limitations](#known-limitations)
+
+</div>
+
+---
 
 A small Bash automation project for monitoring Docker container state changes and sending Telegram alerts when a monitored workload changes state.
 
